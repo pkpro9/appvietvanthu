@@ -52,11 +52,8 @@ def improve_text(content):
         else:
             st.error("Không nhận được phản hồi từ API OpenAI.")
             return content
-    except openai.error.OpenAIError as e:
-        st.error(f"Lỗi từ OpenAI: {e}")
-        return content
     except Exception as e:
-        st.error(f"Lỗi không xác định: {e}")
+        st.error(f"Đã xảy ra lỗi: {e}")
         return content
 
 def main():
