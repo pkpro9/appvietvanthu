@@ -6,6 +6,7 @@ import json
 import os
 import re
 from datetime import datetime
+import base64
 
 def get_latest_sequential_number():
     if os.path.exists('sequential_number.json'):
@@ -32,6 +33,13 @@ def fill_form(template_path, output_path, fields):
 def sanitize_filename(filename):
     filename = re.sub(r'[/*?"<>|:\n]', '', filename)
     return filename.upper()
+
+def generate_download_link(file_path, file_name):
+    with open(file_path, "rb") as f:
+        data = f.read()
+    b64 = base64.b64encode(data).decode()
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">Tải xuống {file_name}</a>'
+    return href
 
 def main():
     st.title("Ứng dụng Điền Tờ Trình")
@@ -72,6 +80,16 @@ def main():
             fill_form(template_path, output_path, fields)
             save_latest_sequential_number(int(entry_1) + 1)
             st.success(f"Tờ trình đã được tạo tại: {output_path}")
+
+            # Hiển thị nút tải xuống
+            with open(output_path, "rb") as file:
+                st.download_button(
+                    label="Tải xuống tờ trình",
+                    data=file,
+                    file_name=os.path.basename(output_path),
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+
         except Exception as e:
             st.error(f"Đã xảy ra lỗi: {e}")
 
