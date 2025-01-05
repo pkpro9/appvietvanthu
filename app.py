@@ -12,6 +12,17 @@ import openai
 # Lấy API Key từ Streamlit Secrets
 openai.api_key = st.secrets["openai_api_key"]
 
+def validate_api_key():
+    try:
+        response = openai.Model.list()
+        return True
+    except openai.error.AuthenticationError:
+        st.error("API Key không hợp lệ. Vui lòng kiểm tra lại!")
+        return False
+    except Exception as e:
+        st.error(f"Lỗi khi xác minh API Key: {e}")
+        return False
+
 def get_latest_sequential_number():
     if os.path.exists('sequential_number.json'):
         with open('sequential_number.json', 'r') as file:
@@ -58,6 +69,10 @@ def improve_text(content):
 
 def main():
     st.title("Ứng dụng Điền Tờ Trình")
+
+    # Kiểm tra API Key trước khi chạy ứng dụng
+    if not validate_api_key():
+        st.stop()
 
     st.sidebar.title("Cài đặt")
     template_path = st.sidebar.text_input("Đường dẫn file mẫu", "template.docx")
