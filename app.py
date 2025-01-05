@@ -48,8 +48,11 @@ def improve_text(content):
             ]
         )
         return response["choices"][0]["message"]["content"].strip()
+    except openai.error.OpenAIError as e:
+        st.error(f"Đã xảy ra lỗi từ API OpenAI: {e}")
+        return content
     except Exception as e:
-        st.error(f"Đã xảy ra lỗi khi cải thiện nội dung: {e}")
+        st.error(f"Lỗi khác: {e}")
         return content
 
 def main():
