@@ -47,12 +47,16 @@ def improve_text(content):
                 {"role": "user", "content": f"Cải thiện nội dung sau cho rõ ràng và mượt mà hơn: {content}"}
             ]
         )
-        return response["choices"][0]["message"]["content"].strip()
+        if "choices" in response and len(response["choices"]) > 0:
+            return response["choices"][0]["message"]["content"].strip()
+        else:
+            st.error("Không nhận được phản hồi từ API OpenAI.")
+            return content
     except openai.error.OpenAIError as e:
-        st.error(f"Đã xảy ra lỗi từ API OpenAI: {e}")
+        st.error(f"Lỗi từ OpenAI: {e}")
         return content
     except Exception as e:
-        st.error(f"Lỗi khác: {e}")
+        st.error(f"Lỗi không xác định: {e}")
         return content
 
 def main():
