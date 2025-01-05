@@ -7,6 +7,10 @@ import os
 import re
 from datetime import datetime
 import base64
+import openai
+
+# Lấy API Key từ Streamlit Secrets
+openai.api_key = st.secrets["openai_api_key"]
 
 def get_latest_sequential_number():
     if os.path.exists('sequential_number.json'):
@@ -34,12 +38,18 @@ def sanitize_filename(filename):
     filename = re.sub(r'[/*?"<>|:\n]', '', filename)
     return filename.upper()
 
-def generate_download_link(file_path, file_name):
-    with open(file_path, "rb") as f:
-        data = f.read()
-    b64 = base64.b64encode(data).decode()
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">Tải xuống {file_name}</a>'
-    return href
+def improve_text(content):
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=f"Cải thiện nội dung sau cho rõ ràng và mượt mà hơn: {content}",
+            max_tokens=500,
+            temperature=0.7
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        st.error(f"Đã xảy ra lỗi khi cải thiện nội dung: {e}")
+        return content
 
 def main():
     st.title("Ứng dụng Điền Tờ Trình")
@@ -54,9 +64,23 @@ def main():
     entry_1 = st.text_input("Số tờ trình", str(sequential_number))
     content_5 = st.text_area("Nội dung tờ trình")
     content_6 = st.text_area("Kính gửi")
+
+    # Các trường cần nút cải thiện nội dung
     content_7 = st.text_area("Thực trạng")
+    if st.button("Cải thiện nội dung - Thực trạng"):
+        improved_content_7 = improve_text(content_7)
+        st.text_area("Thực trạng (Đã cải thiện)", value=improved_content_7, key="improved_7")
+
     content_8 = st.text_area("Nguyên nhân/Diễn giải")
+    if st.button("Cải thiện nội dung - Nguyên nhân/Diễn giải"):
+        improved_content_8 = improve_text(content_8)
+        st.text_area("Nguyên nhân/Diễn giải (Đã cải thiện)", value=improved_content_8, key="improved_8")
+
     content_9 = st.text_area("Giải pháp đề xuất")
+    if st.button("Cải thiện nội dung - Giải pháp đề xuất"):
+        improved_content_9 = improve_text(content_9)
+        st.text_area("Giải pháp đề xuất (Đã cải thiện)", value=improved_content_9, key="improved_9")
+
     content_10 = st.text_area("Khoa Xét nghiệm kính trình")
 
     if st.button("Tạo Tờ Trình"):
