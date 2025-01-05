@@ -40,13 +40,14 @@ def sanitize_filename(filename):
 
 def improve_text(content):
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"Cải thiện nội dung sau cho rõ ràng và mượt mà hơn: {content}",
-            max_tokens=500,
-            temperature=0.7
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Bạn là một trợ lý thông minh giúp cải thiện nội dung văn bản."},
+                {"role": "user", "content": f"Cải thiện nội dung sau cho rõ ràng và mượt mà hơn: {content}"}
+            ]
         )
-        return response.choices[0].text.strip()
+        return response["choices"][0]["message"]["content"].strip()
     except Exception as e:
         st.error(f"Đã xảy ra lỗi khi cải thiện nội dung: {e}")
         return content
